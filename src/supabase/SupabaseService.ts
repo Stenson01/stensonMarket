@@ -1,5 +1,5 @@
 import type { AuthResponse, User } from '@supabase/supabase-js'
-import { supabase } from './client'
+import { isSupabaseConfigured, supabase } from './client'
 
 type TableRow = Record<string, unknown>
 
@@ -39,6 +39,9 @@ export class SupabaseService {
   }
 
   async getProducts(): Promise<{ data: ProductRow[] | null; error: Error | null }> {
+    if (!isSupabaseConfigured) {
+      return { data: null, error: new Error('Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to GitHub Actions secrets.') }
+    }
     return this.getRows<ProductRow>('Products')
   }
 
