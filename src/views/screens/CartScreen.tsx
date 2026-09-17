@@ -1,6 +1,7 @@
-import { products, type Product } from '../../data/products'
+import type { Product } from '../../models/Product'
 
 type CartScreenProps = {
+  products: Product[]
   cart: Record<string, number>
   onBack: () => void
   onIncrease: (product: Product) => void
@@ -13,7 +14,7 @@ type CartScreenProps = {
   onCloseAuthPrompt: () => void
 }
 
-export default function CartScreen({ cart, onBack, onIncrease, onDecrease, onRemove, onCheckout, showAuthPrompt, onLogin, onSignup, onCloseAuthPrompt }: CartScreenProps) {
+export default function CartScreen({ products, cart, onBack, onIncrease, onDecrease, onRemove, onCheckout, showAuthPrompt, onLogin, onSignup, onCloseAuthPrompt }: CartScreenProps) {
   const items = products.filter((product) => cart[product.name])
   const total = items.reduce((sum, product) => sum + Number.parseFloat(product.price.slice(1)) * cart[product.name], 0)
   const itemCount = items.reduce((sum, product) => sum + cart[product.name], 0)

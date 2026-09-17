@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { supabaseService } from '../../supabase/SupabaseService'
+import { supabaseService } from '../../services/SupabaseService'
 
 type SignupScreenProps = {
   onBack: () => void

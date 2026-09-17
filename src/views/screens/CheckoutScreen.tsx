@@ -1,13 +1,14 @@
-import { products, type Product } from '../../data/products'
+import type { Product } from '../../models/Product'
 import { useState } from 'react'
 
 type CheckoutScreenProps = {
+  products: Product[]
   cart: Record<string, number>
   onBack: () => void
   onPlaceOrder: () => void
 }
 
-export default function CheckoutScreen({ cart, onBack, onPlaceOrder }: CheckoutScreenProps) {
+export default function CheckoutScreen({ products, cart, onBack, onPlaceOrder }: CheckoutScreenProps) {
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'moncash'>('card')
   const items = products.filter((product) => cart[product.name])
   const subtotal = items.reduce((sum, product) => sum + Number.parseFloat(product.price.slice(1)) * cart[product.name], 0)

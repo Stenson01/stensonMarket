@@ -1,14 +1,16 @@
-import { products, type Product } from '../../data/products'
+import { products, type Product } from '../../models/Product'
 
 type ProductDetailProps = {
   product: Product
   onBack: () => void
   onSelectProduct: (product: Product) => void
   onAddToCart: (product: Product, quantity?: number) => void
+  quantity: number
+  onUpdateQuantity: (product: Product, change: number) => void
   onOpenCart: () => void
 }
 
-export default function ProductDetail({ product, onBack, onSelectProduct, onAddToCart, onOpenCart }: ProductDetailProps) {
+export default function ProductDetail({ product, onBack, onSelectProduct, onAddToCart, quantity, onUpdateQuantity, onOpenCart }: ProductDetailProps) {
   const relatedProducts = products.filter(
     (relatedProduct) => relatedProduct.category === product.category && relatedProduct.name !== product.name,
   )
@@ -33,7 +35,7 @@ export default function ProductDetail({ product, onBack, onSelectProduct, onAddT
           <p className="detail-origin">{product.origin}</p>
           <div className="detail-purchase">
             <div><strong>{product.price}</strong><span> / {product.unit}</span></div>
-              <div className="quantity-control" aria-label="Quantity"><button type="button">-</button><span>1</span><button type="button">+</button></div>
+              <div className="quantity-control" aria-label="Quantity"><button type="button" aria-label={`Decrease ${product.name}`} onClick={() => onUpdateQuantity(product, -1)} disabled={quantity === 0}>-</button><span>{quantity}</span><button type="button" aria-label={`Increase ${product.name}`} onClick={() => onAddToCart(product)}>+</button></div>
             <div className="detail-actions">
               <button className="add-to-cart" type="button" onClick={() => onAddToCart(product)}>Add to cart</button>
               <button className="add-to-cart" type="button" onClick={onOpenCart}>Go to cart</button>

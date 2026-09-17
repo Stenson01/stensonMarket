@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react'
-import type { Product } from '../../data/products'
-import { supabaseService, type ProductRow } from '../../supabase/SupabaseService'
+import type { Product } from '../../models/Product'
+import { supabaseService, type ProductRow } from '../../services/SupabaseService'
 
 type ProductListProps = {
 	onSelectProduct: (product: Product) => void
 	onAddToCart: (product: Product) => void
+	onProductsLoaded: (products: Product[]) => void
 }
 
-export default function ProductList({ onSelectProduct, onAddToCart }: ProductListProps) {
+export default function ProductList({ onSelectProduct, onAddToCart, onProductsLoaded }: ProductListProps) {
 	const [products, setProducts] = useState<Product[]>([])
 	const [isLoading, setIsLoading] = useState(true)
 	const [errorMessage, setErrorMessage] = useState('')
@@ -21,12 +22,14 @@ export default function ProductList({ onSelectProduct, onAddToCart }: ProductLis
 				return
 			}
 
-			setProducts((data ?? []).map(toProduct))
+			const loadedProducts = (data ?? []).map(toProduct)
+			setProducts(loadedProducts)
+			onProductsLoaded(loadedProducts)
 			setIsLoading(false)
 		}
 
 		void loadProducts()
-	}, [])
+	}, [onProductsLoaded])
 
 	if (isLoading) return <section className="product-section"><p>Loading products...</p></section>
 	if (errorMessage) return <section className="product-section"><p className="auth-error" role="alert">Unable to load products: {errorMessage}</p></section>

@@ -11,6 +11,12 @@ export type ProductRow = {
   image_url: string | null
 }
 
+export type CartRow = {
+  user_id: string
+  product_name: string
+  quantity: number
+}
+
 export class SupabaseService {
   async signUp(email: string, password: string, metadata?: TableRow): Promise<AuthResponse> {
     return supabase.auth.signUp({
@@ -43,6 +49,32 @@ export class SupabaseService {
       return { data: null, error: new Error('Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to GitHub Actions secrets.') }
     }
     return this.getRows<ProductRow>('Products')
+  }
+
+  async getCart(userId: string): Promise<{ data: CartRow[] | null; error: Error | null }> {
+    if (!isSupabaseConfigured) {
+      return { data: null, error: new Error('Supabase is not configured.') }
+    }
+
+    const { data, error } = await supabase.from('Cart').select('user_id, product_name, quantity').eq('user_id', userId)
+    return { data: data as CartRow[] | null, error }
+  }
+
+  async saveCartItem(userId: string, productName: string, quantity: number): Promise<{ error: Error | null }> {
+    if (!isSupabaseConfigured) return { error: new Error('Supabase is not configured.') }
+
+    const { error } = await supabase.from('Cart').upsert(
+      { user_id: userId, product_name: productName, quantity },
+      { onConflict: 'user_id,product_name' },
+    )
+    return { error }
+  }
+
+  async removeCartItem(userId: string, productName: string): Promise<{ error: Error | null }> {
+    if (!isSupabaseConfigured) return { error: new Error('Supabase is not configured.') }
+
+    const { error } = await supabase.from('Cart').delete().eq('user_id', userId).eq('product_name', productName)
+    return { error }
   }
 
   async getRow<T extends TableRow = TableRow>(table: string, column: string, value: unknown): Promise<{ data: T | null; error: Error | null }> {
