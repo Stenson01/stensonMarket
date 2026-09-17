@@ -1,19 +1,30 @@
-import { products, type Product } from '../../models/Product'
+import { useState } from 'react'
+import type { Product } from '../../models/Product'
 
 type ProductDetailProps = {
   product: Product
+  relatedProducts: Product[]
   onBack: () => void
   onSelectProduct: (product: Product) => void
-  onAddToCart: (product: Product, quantity?: number) => void
+  onAddToCart: (product: Product, quantity?: number) => Promise<void>
   quantity: number
   onUpdateQuantity: (product: Product, change: number) => void
   onOpenCart: () => void
 }
 
-export default function ProductDetail({ product, onBack, onSelectProduct, onAddToCart, quantity, onUpdateQuantity, onOpenCart }: ProductDetailProps) {
-  const relatedProducts = products.filter(
+export default function ProductDetail({ product, relatedProducts, onBack, onSelectProduct, onAddToCart, quantity, onUpdateQuantity, onOpenCart }: ProductDetailProps) {
+  const [isAdding, setIsAdding] = useState(false)
+  const [wasAdded, setWasAdded] = useState(false)
+  const related = relatedProducts.filter(
     (relatedProduct) => relatedProduct.category === product.category && relatedProduct.name !== product.name,
   )
+
+  const handleAddToCart = async () => {
+    setIsAdding(true)
+    await onAddToCart(product)
+    setWasAdded(true)
+    setIsAdding(false)
+  }
 
   return (
     <section className="detail-screen" data-product-id={product.id} aria-labelledby="detail-title">
@@ -35,9 +46,9 @@ export default function ProductDetail({ product, onBack, onSelectProduct, onAddT
           <p className="detail-origin">{product.origin}</p>
           <div className="detail-purchase">
             <div><strong>{product.price}</strong><span> / {product.unit}</span></div>
-              <div className="quantity-control" aria-label="Quantity"><button type="button" aria-label={`Decrease ${product.name}`} onClick={() => onUpdateQuantity(product, -1)} disabled={quantity === 0}>-</button><span>{quantity}</span><button type="button" aria-label={`Increase ${product.name}`} onClick={() => onAddToCart(product)}>+</button></div>
+              <div className="quantity-control" aria-label="Quantity"><button type="button" aria-label={`Decrease ${product.name}`} onClick={() => onUpdateQuantity(product, -1)} disabled={quantity === 0}>-</button><span>{quantity}</span><button type="button" aria-label={`Increase ${product.name}`} onClick={() => { void onUpdateQuantity(product, 1) }}>+</button></div>
             <div className="detail-actions">
-              <button className="add-to-cart" type="button" onClick={() => onAddToCart(product)}>Add to cart</button>
+              <button className="add-to-cart" type="button" onClick={() => { void handleAddToCart() }} disabled={isAdding}>{isAdding ? 'Adding...' : wasAdded ? 'Added to cart' : 'Add to cart'}</button>
               <button className="add-to-cart" type="button" onClick={onOpenCart}>Go to cart</button>
             </div>
           </div>
@@ -57,11 +68,11 @@ export default function ProductDetail({ product, onBack, onSelectProduct, onAddT
         </div>
       </section>
 
-      {relatedProducts.length > 0 && (
+      {related.length > 0 && (
         <section className="related-products" aria-labelledby="related-title">
           <div className="detail-section-heading"><div><p className="eyebrow">More to explore</p><h2 id="related-title">More from {product.category}</h2></div></div>
           <div className="related-list">
-            {relatedProducts.map((relatedProduct) => (
+            {related.map((relatedProduct) => (
               <button className="related-card" type="button" key={relatedProduct.name} onClick={() => onSelectProduct(relatedProduct)}>
                 <span className={`related-image ${relatedProduct.color}`} aria-hidden="true">{relatedProduct.icon}</span>
                 <span><strong>{relatedProduct.name}</strong><small>{relatedProduct.price} / {relatedProduct.unit}</small></span>
