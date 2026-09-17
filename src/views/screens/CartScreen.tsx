@@ -30,7 +30,9 @@ export default function CartScreen({ products, cart, onBack, onIncrease, onDecre
           <div className="cart-items">
             {items.map((product) => (
               <article className="cart-item" key={product.name}>
-                <div className={`cart-item-image ${product.color}`} aria-hidden="true">{product.icon}</div>
+                <div className={`cart-item-image ${product.color}`}>
+                  {product.imageUrl ? <img src={product.imageUrl} alt={product.name} /> : <span aria-hidden="true">{product.icon}</span>}
+                </div>
                 <div className="cart-item-info"><span className="product-category">{product.category}</span><h2>{product.name}</h2><span>{product.price} / {product.unit}</span></div>
                 <div className="cart-item-actions"><div className="quantity-control"><button type="button" onClick={() => onDecrease(product)} aria-label={`Decrease ${product.name}`}>-</button><span>{cart[product.name]}</span><button type="button" onClick={() => onIncrease(product)} aria-label={`Increase ${product.name}`}>+</button></div><button className="remove-button" type="button" onClick={() => onRemove(product)}>Remove</button></div>
               </article>
