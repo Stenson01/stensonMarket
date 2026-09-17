@@ -42,6 +42,7 @@ export default function App() {
         ) : selectedProduct ? (
           <ProductDetail
             product={selectedProduct}
+            relatedProducts={availableProducts}
             onBack={goBack}
             onSelectProduct={openProduct}
             onAddToCart={addToCart}
