@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { Product } from '../../models/Product'
 
 type ProductDetailProps = {
@@ -13,11 +13,16 @@ type ProductDetailProps = {
 }
 
 export default function ProductDetail({ product, relatedProducts, onBack, onSelectProduct, onAddToCart, quantity, onUpdateQuantity, onOpenCart }: ProductDetailProps) {
+  const [displayQuantity, setDisplayQuantity] = useState(quantity)
   const [isAdding, setIsAdding] = useState(false)
   const [wasAdded, setWasAdded] = useState(false)
   const related = relatedProducts.filter(
     (relatedProduct) => relatedProduct.category === product.category && relatedProduct.name !== product.name,
   )
+
+  useEffect(() => {
+    setDisplayQuantity(quantity)
+  }, [product.id])
 
   const handleAddToCart = async () => {
     setIsAdding(true)
@@ -46,7 +51,7 @@ export default function ProductDetail({ product, relatedProducts, onBack, onSele
           <p className="detail-origin">{product.origin}</p>
           <div className="detail-purchase">
             <div><strong>{product.price}</strong><span> / {product.unit}</span></div>
-              <div className="quantity-control" aria-label="Quantity"><button type="button" aria-label={`Decrease ${product.name}`} onClick={() => onUpdateQuantity(product, -1)} disabled={quantity === 0}>-</button><span>{quantity}</span><button type="button" aria-label={`Increase ${product.name}`} onClick={() => { void onUpdateQuantity(product, 1) }}>+</button></div>
+              <div className="quantity-control" aria-label="Quantity"><button type="button" aria-label={`Decrease ${product.name}`} onClick={() => { setDisplayQuantity((currentQuantity) => Math.max(0, currentQuantity - 1)); void onUpdateQuantity(product, -1) }} disabled={displayQuantity === 0}>-</button><span>{displayQuantity}</span><button type="button" aria-label={`Increase ${product.name}`} onClick={() => { setDisplayQuantity((currentQuantity) => currentQuantity + 1); void onUpdateQuantity(product, 1) }}>+</button></div>
             <div className="detail-actions">
               <button className="add-to-cart" type="button" onClick={() => { void handleAddToCart() }} disabled={isAdding}>{isAdding ? 'Adding...' : wasAdded ? 'Added to cart' : 'Add to cart'}</button>
               <button className="add-to-cart" type="button" onClick={onOpenCart}>Go to cart</button>

@@ -76,16 +76,15 @@ export function useMarketViewModel() {
 
   const addToCart = async (product: Product, quantity = 1) => {
     const { user } = await supabaseService.getCurrentUser()
-    const cartQuantity = cart[product.name] ?? 0
-    const quantityToSave = cartQuantity > 0 ? cartQuantity : quantity
 
     if (!user) {
-      setCart((currentCart) => ({ ...currentCart, [product.name]: currentCart[product.name] ?? quantityToSave }))
+      setCart((currentCart) => ({ ...currentCart, [product.name]: (currentCart[product.name] ?? 0) + quantity }))
       setIsCartLoaded(true)
       return
     }
 
-    await supabaseService.saveCartItem(user.id, product.name, quantityToSave)
+    const nextQuantity = (cart[product.name] ?? 0) + quantity
+    await supabaseService.saveCartItem(user.id, product.name, nextQuantity)
     await loadCart(user.id)
   }
 
